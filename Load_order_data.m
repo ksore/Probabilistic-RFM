@@ -2,7 +2,7 @@
 set(0,'DefaultFigureWindowStyle','docked')
 
 formatSpec = '%s%s%s%s%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%s%s%s%[^\n\r]';
-fileID = fopen('orders_subset.csv','r');
+fileID = fopen('../Data/orders_subset.csv','r');
 dataArray = textscan(fileID, formatSpec, 'Delimiter', ',',  'ReturnOnError', false, ...
     'HeaderLines',1);
 fclose(fileID);
