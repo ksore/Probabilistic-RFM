@@ -3,7 +3,7 @@ function [ p q gamma ] = Gamma_Gamma_params( p1x, zbar )
 %   Detailed explanation goes here
 
 lb = [0.001,0.001,0.001];
-ub = [50,50,500];
+ub = [10,10,500];
 
 initial = [1,1,1];
 

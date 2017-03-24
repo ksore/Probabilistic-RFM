@@ -8,18 +8,15 @@ p = param(1);
 q = param(2);
 gam = param(3);
 
-func = real(gamma(p*p1x+q)./(gamma(p*p1x)*gamma(q)) .* ...
-        zbar.^(p*p1x-1) .* gam.^q .* p1x.^(p*p1x) ./ ...
-        (gam+p1x.*zbar).^(p*p1x+q));
+func = gammaln(p*p1x+q) - gammaln(p*p1x) - gammaln(q) + ...
+    q.*log(gam)+(p*p1x-1).*log(zbar) + (p*p1x) .* log(p1x) - ...
+    (p*p1x+q) .* log(gam+p1x.*zbar);
     
 accum = 0;
 
 for i = 1:length(func)
-    if func(i) > 0 && zbar(i)>0
-        if func(i) == Inf
-            a = 1;
-        end
-        accum = accum + real(log(func(i)));
+    if p1x(i)>0
+        accum = accum + func(i);
     end
 end
 
