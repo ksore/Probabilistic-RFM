@@ -1,7 +1,6 @@
 
-set(0,'DefaultFigureWindowStyle','docked')
+formatSpec = '%s%s%s%s%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%s%*s%s%*s%*s%s%s%[^\n\r]';
 
-formatSpec = '%s%s%s%s%s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%s%s%s%[^\n\r]';
 fileID = fopen('../Data/orders_subset.csv','r');
 dataArray = textscan(fileID, formatSpec, 'Delimiter', ',',  'ReturnOnError', false, ...
     'HeaderLines',1);
@@ -15,7 +14,7 @@ for col=1:length(dataArray)-1
 end
 numericData = NaN(size(dataArray{1},1),size(dataArray,2));
 
-for col=[1,2,6,7]
+for col=[1,2,6,7,8]
     % Converts text in the input cell array to numbers. Replaced non-numeric
     % text with NaN.
     rawData = dataArray{col};
@@ -50,23 +49,23 @@ end
 % Convert the contents of columns with dates to MATLAB datetimes using the
 % specified date format.
 try
-    dates{8} = datetime(dataArray{8}, 'Format', 'yyyy-MM-dd', 'InputFormat', 'yyyy-MM-dd');
+    dates{9} = datetime(dataArray{9}, 'Format', 'yyyy-MM-dd', 'InputFormat', 'yyyy-MM-dd');
 catch
     try
         % Handle dates surrounded by quotes
-        dataArray{8} = cellfun(@(x) x(2:end-1), dataArray{8}, 'UniformOutput', false);
-        dates{8} = datetime(dataArray{8}, 'Format', 'yyyy-MM-dd', 'InputFormat', 'yyyy-MM-dd');
+        dataArray{9} = cellfun(@(x) x(2:end-1), dataArray{9}, 'UniformOutput', false);
+        dates{9} = datetime(dataArray{9}, 'Format', 'yyyy-MM-dd', 'InputFormat', 'yyyy-MM-dd');
     catch
-        dates{8} = repmat(datetime([NaN NaN NaN]), size(dataArray{8}));
+        dates{9} = repmat(datetime([NaN NaN NaN]), size(dataArray{8}));
     end
 end
 
-anyBlankDates = cellfun(@isempty, dataArray{8});
-anyInvalidDates = isnan(dates{8}.Hour) - anyBlankDates;
-dates = dates(:,8);
+anyBlankDates = cellfun(@isempty, dataArray{9});
+anyInvalidDates = isnan(dates{9}.Hour) - anyBlankDates;
+dates = dates(:,9);
 
 %% Split data into numeric and cell columns.
-rawNumericColumns = raw(:, [1,2,6,7]);
+rawNumericColumns = raw(:, [1,2,6,7,8]);
 rawCellColumns = raw(:, [3,4,5]);
 
 
@@ -83,8 +82,9 @@ orders.patient_number = cell2mat(rawNumericColumns(:, 2));
 orders.patient_group = rawCellColumns(:, 1);
 orders.location_name = rawCellColumns(:, 2);
 orders.order_source = rawCellColumns(:, 3);
-orders.net_revenue = cell2mat(rawNumericColumns(:, 3));
-orders.cost = cell2mat(rawNumericColumns(:, 4));
+orders.gross_revenue = cell2mat(rawNumericColumns(:, 3));
+orders.net_revenue = cell2mat(rawNumericColumns(:, 4));
+orders.cost = cell2mat(rawNumericColumns(:, 5));
 orders.date_completed = dates{:, 1};
 
 % For code requiring serial dates (datenum) instead of datetime, uncomment
@@ -98,14 +98,14 @@ clearvars filename delimiter formatSpec fileID dataArray ans raw col numericData
 %% Building visits and patients table
 
 visits = grpstats(orders, {'patient_number','date_completed','date_completed_serial'},'sum', ...
-    'Datavars',{'net_revenue','cost'});
+    'Datavars',{'gross_revenue','cost'});
 
 T1 = grpstats(visits, 'patient_number','min', 'Datavars','date_completed_serial');
-T2 = grpstats(visits, 'patient_number','mean', 'Datavars',{'sum_net_revenue','sum_cost'});
+T2 = grpstats(visits, 'patient_number','mean', 'Datavars',{'sum_gross_revenue','sum_cost'});
 
 patients = join(T1, T2, 'LeftVariables', {'patient_number', 'min_date_completed_serial'}, ...
-    'RightVariables', {'mean_sum_net_revenue', 'mean_sum_cost'});
+    'RightVariables', {'mean_sum_gross_revenue', 'mean_sum_cost'});
 
-patients.Properties.VariableNames = {'patient_number' 'first_visit', 'mean_value', 'mean_cost'};
+patients.Properties.VariableNames = {'patient_number' 'first_visit', 'mean_rev', 'mean_cost'};
 
 clear T1 T2 ;
