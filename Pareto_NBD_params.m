@@ -5,9 +5,12 @@ function [ r alpha s beta ] = Pareto_NBD_params( p1x,  tx  ,T , p2x )
 lb = .001 * ones(1,4);
 ub = 100 * ones(1,4);
 
-initial = ones(1,4);
+initial = ones(1,4)*5;
 
-[params ll] = fmincon('pareto_nbd_ll',initial,[],[],[],[],lb,ub)
+lloptions = optimoptions(@fmincon,'Display','final','Algorithm','interior-point', ...
+    'OptimalityTolerance', 0.001, 'Display','off');
+
+[params ll] = fmincon('pareto_nbd_ll',initial,[],[],[],[],lb,ub,[],lloptions);
 
 r = params(1); alpha = params(2);
 s = params(3); beta  = params(4);
