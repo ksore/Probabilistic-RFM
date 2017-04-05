@@ -2,13 +2,13 @@ function [ p q gamma ] = Gamma_Gamma_params( p1x, zbar )
 %GAMMA_GAMMA_PARAMS Summary of this function goes here
 %   Detailed explanation goes here
 
-lb = [0.001,0.001,0.001];
+lb = [0.1,0.1,0.1];
 ub = [10,10,500];
 
 initial = [1,1,1];
 
 lloptions = optimoptions(@fmincon,'Display','final','Algorithm','interior-point', ...
-    'OptimalityTolerance', 0.0001, 'Display','off');
+    'OptimalityTolerance', 0.01, 'Display','off');
 
 problem = createOptimProblem('fmincon', 'objective','gamma_gamma_ll','x0',initial, ...
     'lb',lb,'ub',ub,'options',lloptions);
